@@ -29,7 +29,7 @@ struct Args {
     /// Serial device of the ESP32 TI board controller.
     esp32_serial_file_name: String,
 
-    /// A path to the script to run to execute pairing.
+    /// A path to the script to run to execute pairing. The pairing PIN is passed in as a positional argument.
     pairing_script: String,
 }
 
@@ -107,6 +107,7 @@ fn main() {
         esp32.write_all(b"h0r").expect("Failed to write to ESP32.");
 
         Command::new(&args.pairing_script)
+            .arg(format!("{:06x}", pin))
             .status()
             .expect("Failed to execute pairing script.");
 
