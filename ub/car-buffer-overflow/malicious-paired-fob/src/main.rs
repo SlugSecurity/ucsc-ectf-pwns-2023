@@ -9,7 +9,7 @@ use tm4c123x_hal::{
     gpio::{GpioExt, AF1},
     prelude::_embedded_hal_serial_Read,
     serial::{NewlineMode, Serial},
-    sysctl::SysctlExt,
+    sysctl::{CrystalFrequency, Oscillator, PllOutputFrequency, SysctlExt, SystemClock},
     time::Bps,
     CorePeripherals, Peripherals,
 };
@@ -18,7 +18,13 @@ use tm4c123x_hal::{
 fn main() -> ! {
     let core = CorePeripherals::take().unwrap();
     let peripherals = Peripherals::take().unwrap();
-    let sys = peripherals.SYSCTL.constrain();
+    let mut sys = peripherals.SYSCTL.constrain();
+
+    sys.clock_setup.oscillator = Oscillator::Main(
+        CrystalFrequency::_16mhz,
+        SystemClock::UsePll(PllOutputFrequency::_80_00mhz),
+    );
+
     let clocks = sys.clock_setup.freeze();
     let mut porta = peripherals.GPIO_PORTA.split(&sys.power_control);
     let pa0 = porta.pa0.into_af_push_pull::<AF1>(&mut porta.control);
