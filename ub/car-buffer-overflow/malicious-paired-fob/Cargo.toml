@@ -1,0 +1,16 @@
+[package]
+name = "malicious-paired-fob"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+panic-halt = "0.2.0"
+tm4c123x-hal = { version = "0.10.2", features = ["rt"] }
+ucsc-ectf-util-no-std = { path = "../../../../ucsc-ectf-2023/docker_env/util_no_std" }
+cortex-m-rt = { version = "0.7.3" }
+
+[patch.crates-io]
+tm4c123x = { git = "https://git.ucsc.edu/ucsc-ectf-2023/dslite2svd.git", branch = "v0.9.0-update" }
+tm4c123x-hal = { git = "https://git.ucsc.edu/ucsc-ectf-2023/tm4c-hal.git", branch = "tm4c123x-hal-0.10.2-update" }
