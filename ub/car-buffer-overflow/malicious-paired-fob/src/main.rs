@@ -65,7 +65,7 @@ fn main() -> ! {
 
     // Delay by a bit, reading UART1 constantly for a challenge.
     // If we read any bytes, we say we found a challenge.
-    for _ in 0..10_000_000 {
+    for _ in 0..500_000 {
         if uart1.read().is_ok() {
             found_challenge = true;
         }
