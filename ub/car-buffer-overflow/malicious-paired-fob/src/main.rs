@@ -49,7 +49,7 @@ fn main() -> ! {
         &sys.power_control,
     );
 
-    uart0.write_all(b"Sending unlock request...");
+    uart0.write_all(b"Sending unlock request...\n");
 
     // We're going to send it across UART1 to the car
     let unlock_req = include_bytes!("unlock_req.bin");
@@ -66,12 +66,14 @@ fn main() -> ! {
     }
 
     if found_challenge {
-        uart0.write_all(b"Found challenge.");
+        uart0.write_all(b"Found challenge.\n");
     } else {
-        uart0.write_all(b"Never got a challenge.");
+        uart0.write_all(b"Never got a challenge.\n");
+
+        loop {}
     }
 
-    uart0.write_all(b"Sending malicious response...");
+    uart0.write_all(b"Sending malicious response...\n");
 
     // We're going to send it across UART1 to the car
     let unlock_resp = include_bytes!("unlock_response.bin");
