@@ -38,7 +38,7 @@ const BAUD_RATE: u32 = 115200;
 const DEFAULT_START_PIN: u32 = 0;
 const DEFAULT_STOP_PIN: u32 = 0xffffff;
 const DEFAULT_CURRENT_PIN_INTERVAL: u32 = 1; // In seconds.
-const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 10; // In milliseconds.
+const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 3; // In milliseconds.
 const RESET_HOLD_TIME: u64 = 10; // In microseconds.
 
 fn pair(uart0: &mut Box<dyn SerialPort>, pin: u32) {
