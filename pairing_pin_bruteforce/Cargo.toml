@@ -1,11 +1,6 @@
-[package]
-name = "pairing_pin_bruteforce"
-version = "0.1.0"
-edition = "2021"
-authors = ["2023 UCSC eCTF Team"]
-categories = ["embedded", "no-std"]
-license = "MIT"
-
-[dependencies]
-clap = { version = "4.1.9", features = ["derive"] }
-serialport = "4.2.0"
+[workspace]
+members = [
+    "template",
+    "msu",
+]
+resolver = "2"
