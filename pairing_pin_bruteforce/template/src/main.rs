@@ -34,8 +34,6 @@ struct Args {
     esp32_serial_file_name: String,
 }
 
-// TODO: Configure these values for a design.
-
 const BAUD_RATE: u32 = 115200;
 const DEFAULT_START_PIN: u32 = 0;
 const DEFAULT_STOP_PIN: u32 = 0xffffff;

@@ -34,8 +34,6 @@ struct Args {
     esp32_serial_file_name: String,
 }
 
-// TODO: Configure these values for a design.
-
 const BAUD_RATE: u32 = 115200;
 const DEFAULT_START_PIN: u32 = 0;
 const DEFAULT_STOP_PIN: u32 = 0xffffff;
@@ -44,7 +42,9 @@ const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 10; // In milliseconds.
 const RESET_HOLD_TIME: u64 = 10; // In microseconds.
 
 fn pair(uart0: &mut Box<dyn SerialPort>, pin: u32) {
-    // TODO: Fill in for a design.
+    let mut msg: [u8; 5] = [0x20, 0x00, 0x00, 0x00, 0x00];
+    msg[1..].copy_from_slice(&pin.to_le_bytes());
+    uart0.write_all(&msg).expect("Failed to write to UART0.");
 }
 
 fn main() {
