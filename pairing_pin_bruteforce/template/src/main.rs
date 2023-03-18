@@ -38,8 +38,8 @@ const BAUD_RATE: u32 = 115200;
 const DEFAULT_START_PIN: u32 = 0;
 const DEFAULT_STOP_PIN: u32 = 0xffffff;
 const DEFAULT_CURRENT_PIN_INTERVAL: u32 = 1; // In seconds.
-const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 10; // In milliseconds.
-const RESET_HOLD_TIME: u64 = 10; // In microseconds.
+const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 3; // In milliseconds.
+const RESET_HOLD_TIME: u64 = 20; // In microseconds.
 
 fn pair(uart0: &mut Box<dyn SerialPort>, pin: u32) {
     // TODO: Fill in for a design.
@@ -49,28 +49,32 @@ fn main() {
     let args = Args::parse();
     let pin_attempt_delay = args.pin_attempt_delay.unwrap_or(DEFAULT_PIN_ATTEMPT_DELAY);
 
-    let start_pin =
-        match u32::from_str_radix(&args.start_pin.unwrap_or(DEFAULT_START_PIN.to_string()), 16) {
-            Ok(pin) => pin,
-            Err(_) => {
-                println!("Failed to parse start PIN.");
-                return;
-            }
-        };
+    let start_pin = match u32::from_str_radix(
+        &args.start_pin.unwrap_or(format!("{:x}", DEFAULT_START_PIN)),
+        16,
+    ) {
+        Ok(pin) => pin,
+        Err(_) => {
+            println!("Failed to parse start PIN.");
+            return;
+        }
+    };
 
     if start_pin > DEFAULT_STOP_PIN {
         println!("Start PIN is greater than the highest PIN.");
         return;
     }
 
-    let stop_pin =
-        match u32::from_str_radix(&args.stop_pin.unwrap_or(DEFAULT_STOP_PIN.to_string()), 16) {
-            Ok(pin) => pin,
-            Err(_) => {
-                println!("Failed to parse stop PIN.");
-                return;
-            }
-        };
+    let stop_pin = match u32::from_str_radix(
+        &args.stop_pin.unwrap_or(format!("{:x}", DEFAULT_STOP_PIN)),
+        16,
+    ) {
+        Ok(pin) => pin,
+        Err(_) => {
+            println!("Failed to parse stop PIN.");
+            return;
+        }
+    };
 
     if stop_pin > DEFAULT_STOP_PIN {
         println!("Stop PIN is greater than the highest PIN.");
@@ -87,6 +91,11 @@ fn main() {
         .unwrap_or(DEFAULT_CURRENT_PIN_INTERVAL);
 
     let iterations_between_current_pin_output = (current_pin_interval * 1000) / pin_attempt_delay;
+
+    if args.board_number != 0 && args.board_number != 1 {
+        println!("Board number must be 0 or 1.");
+        return;
+    }
 
     let mut uart0 = serialport::new(args.uart0_serial_file_name, BAUD_RATE)
         .open()
@@ -105,12 +114,31 @@ fn main() {
         .open()
         .expect("Failed to open ESP32 serial port.");
 
-    esp32.write_all(b"h02").expect("Failed to write to ESP32."); // Make sure SW2 is not pressed.
+    esp32
+        .write_all(format!("h{}1", args.board_number).as_bytes())
+        .expect("Failed to write to ESP32."); // Make sure SW1 is not pressed.
+
+    thread::sleep(Duration::from_millis(1));
+
+    esp32
+        .write_all(format!("h{}2", args.board_number).as_bytes())
+        .expect("Failed to write to ESP32."); // Make sure SW2 is not pressed.
+
+    let lower_reset_string = format!("l{}r", args.board_number);
+    let raise_reset_string = format!("h{}r", args.board_number);
+    let lower_reset_bytes = lower_reset_string.as_bytes();
+    let raise_reset_bytes = raise_reset_string.as_bytes();
 
     for pin in start_pin..=stop_pin {
-        esp32.write_all(b"l0r").expect("Failed to write to ESP32.");
+        esp32
+            .write_all(lower_reset_bytes)
+            .expect("Failed to write to ESP32.");
+
         thread::sleep(Duration::from_micros(RESET_HOLD_TIME));
-        esp32.write_all(b"h0r").expect("Failed to write to ESP32.");
+
+        esp32
+            .write_all(raise_reset_bytes)
+            .expect("Failed to write to ESP32.");
 
         pair(&mut uart0, pin);
 
