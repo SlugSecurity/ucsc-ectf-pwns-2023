@@ -57,7 +57,7 @@ const RESPONSE_LEN: usize = 256;
 
 fn do_mode_change(esp32: &mut Box<dyn SerialPort>, dev1_serial: &str, dev2_serial: &str) {
     // Reset both boards while holding down SW1
-    for board_number in [1, 2] {
+    for board_number in [0, 1] {
         esp32
             .write_all(format!("l{board_number}r\n").as_bytes())
             .expect("Failed to write to ESP32.");
@@ -89,7 +89,7 @@ fn do_mode_change(esp32: &mut Box<dyn SerialPort>, dev1_serial: &str, dev2_seria
         .expect("Failed to do mode change.");
 
     // Reset both boards again
-    for board_number in [1, 2] {
+    for board_number in [0, 1] {
         esp32
             .write_all(format!("l{board_number}r\n").as_bytes())
             .expect("Failed to write to ESP32.");
