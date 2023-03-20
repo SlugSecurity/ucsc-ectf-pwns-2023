@@ -18,15 +18,15 @@ struct Args {
     #[arg(short, long)]
     car_dev_name: String,
 
-    /// The name of the design to flash.
+    /// The name of the fob design to flash.
     #[arg(short, long)]
     fob_dev_name: String,
 
-    /// The number of unlock attempts to make using the paired key fob.
+    /// The number of unlock attempts to make using the paired fob.
     #[arg(short, long)]
     paired_attempts: u32,
 
-    /// The number of unlock attempts to make after disabling the paired key fob.
+    /// The number of unlock attempts to make after disabling the paired fob.
     #[arg(short, long)]
     unpaired_attempts: u32,
 
@@ -35,6 +35,9 @@ struct Args {
 
     /// Serial device of the paired fob's UART0.
     fob_uart0_serial_file_name: String,
+
+    /// Serial device of the car's UART1.
+    car_uart1_serial_file_name: String,
 
     /// Serial device of the paired fob's UART1.
     fob_uart1_serial_file_name: String,
@@ -102,11 +105,19 @@ fn do_mode_change(esp32: &mut Box<dyn SerialPort>, dev1_serial: &str, dev2_seria
 fn main() {
     let args = Args::parse();
 
-    let mut uart1 = serialport::new(&args.fob_uart1_serial_file_name, BAUD_RATE)
+    let mut car_uart1 = serialport::new(&args.fob_uart1_serial_file_name, BAUD_RATE)
         .open()
         .expect("Failed to open UART1 serial port.");
 
-    uart1
+    car_uart1
+        .clear(serialport::ClearBuffer::All)
+        .expect("Failed to clear UART1 serial port.");
+
+    let mut fob_uart1 = serialport::new(&args.fob_uart1_serial_file_name, BAUD_RATE)
+        .open()
+        .expect("Failed to open UART1 serial port.");
+
+    fob_uart1
         .clear(serialport::ClearBuffer::All)
         .expect("Failed to clear UART1 serial port.");
 
@@ -162,14 +173,14 @@ fn main() {
         thread::sleep(MODE_CHANGE_TIME);
 
         // Send the unlock message and wait
-        uart1
+        car_uart1
             .write_all(&UNLOCK_MESSAGE)
             .expect("Failed to write to UART1.");
         thread::sleep(Duration::from_millis(100));
 
         // Receive a challenge from the car
         let mut challenge = [0u8; CHALLENGE_LEN];
-        match uart1.read(&mut challenge) {
+        match car_uart1.read(&mut challenge) {
             Ok(CHALLENGE_LEN) => {
                 println!("Received challenge {challenge:?}")
             }
@@ -179,15 +190,15 @@ fn main() {
             Err(e) => panic!("Failed to read from UART1: {}", e),
         }
 
-        // Send the challenge to the paired key fob and wait
-        uart1
+        // Send the challenge to the paired fob and wait
+        fob_uart1
             .write_all(&challenge)
             .expect("Failed to write to UART1.");
         thread::sleep(Duration::from_millis(100));
 
-        // Receive the response from the paired key fob
+        // Receive the response from the paired fob
         let mut response = [0; RESPONSE_LEN];
-        match uart1.read(&mut response) {
+        match fob_uart1.read(&mut response) {
             Ok(RESPONSE_LEN) => {
                 println!("Received response {response:?} for challenge {challenge:?}");
                 responses.insert(challenge, response);
@@ -229,7 +240,7 @@ fn main() {
 
         // Receive a challenge from the car
         let mut challenge = [0; CHALLENGE_LEN];
-        match uart1.read(&mut challenge) {
+        match car_uart1.read(&mut challenge) {
             Ok(CHALLENGE_LEN) => (),
             Ok(n) => {
                 panic!("Tried to read {CHALLENGE_LEN} bytes from UART1 but only got {n} bytes.")
@@ -242,14 +253,14 @@ fn main() {
             println!("Found a response for the current challenge");
 
             // Send the response to the car and wait
-            uart1
+            car_uart1
                 .write_all(response)
                 .expect("Failed to write to UART1.");
             thread::sleep(Duration::from_millis(100));
 
             // Receive the unlock message and print it
             let mut unlock_received = [0; 1024];
-            match uart1.read(&mut unlock_received) {
+            match car_uart1.read(&mut unlock_received) {
                 Ok(n) => {
                     println!("{}", str::from_utf8(&unlock_received[..n]).unwrap());
                 }
