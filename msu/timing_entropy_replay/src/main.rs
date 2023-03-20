@@ -130,7 +130,7 @@ fn main() {
         .args([
             "-m",
             "ectf_tools",
-            "device.load_hw",
+            "device.load_sec_hw",
             "--dev-in",
             args.dev_in.to_str().unwrap(),
             "--dev-name",
@@ -149,7 +149,7 @@ fn main() {
             .args([
                 "-m",
                 "ectf_tools",
-                "device.load_hw",
+                "device.load_sec_hw",
                 "--dev-in",
                 args.dev_in.to_str().unwrap(),
                 "--dev-name",
@@ -218,7 +218,7 @@ fn main() {
             .args([
                 "-m",
                 "ectf_tools",
-                "device.load_hw",
+                "device.load_sec_hw",
                 "--dev-in",
                 args.dev_in.to_str().unwrap(),
                 "--dev-name",
@@ -237,6 +237,15 @@ fn main() {
             &args.fob_uart0_serial_file_name,
         );
         while mode_change_start.elapsed() < MODE_CHANGE_TIME {}
+
+        // Reset the car
+        esp32
+            .write_all(b"l0r\n")
+            .expect("Failed to write to ESP32.");
+        thread::sleep(RESET_HOLD_TIME);
+        esp32
+            .write_all(b"h0r\n")
+            .expect("Failed to write to ESP32.");
 
         // Receive a challenge from the car
         let mut challenge = [0; CHALLENGE_LEN];
