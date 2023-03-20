@@ -105,7 +105,7 @@ fn do_mode_change(esp32: &mut Box<dyn SerialPort>, dev1_serial: &str, dev2_seria
 fn main() {
     let args = Args::parse();
 
-    let mut car_uart1 = serialport::new(&args.fob_uart1_serial_file_name, BAUD_RATE)
+    let mut car_uart1 = serialport::new(&args.car_uart1_serial_file_name, BAUD_RATE)
         .open()
         .expect("Failed to open UART1 serial port.");
 
