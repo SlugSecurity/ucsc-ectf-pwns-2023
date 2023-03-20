@@ -10,14 +10,14 @@ struct Args {
     start_pin: Option<String>,
 
     /// PIN to stop cracking at (inclusive). Default = ffffff.
-    #[arg(short, long)]
+    #[arg(short = 't', long)]
     stop_pin: Option<String>,
 
     /// How often to output the current PIN attempt in seconds. Default = 1.
     #[arg(short, long)]
     current_pin_interval: Option<u32>,
 
-    /// Delay between PIN attempts in milliseconds. Default = 10.
+    /// Delay between PIN attempts in milliseconds. Default = 25.
     #[arg(short, long)]
     pin_attempt_delay: Option<u32>,
 
@@ -38,7 +38,7 @@ const BAUD_RATE: u32 = 115200;
 const DEFAULT_START_PIN: u32 = 0;
 const DEFAULT_STOP_PIN: u32 = 0xffffff;
 const DEFAULT_CURRENT_PIN_INTERVAL: u32 = 1; // In seconds.
-const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 3; // In milliseconds.
+const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 25; // In milliseconds.
 const RESET_HOLD_TIME: u64 = 20; // In microseconds.
 
 fn pair(uart0: &mut Box<dyn SerialPort>, pin: u32) {
