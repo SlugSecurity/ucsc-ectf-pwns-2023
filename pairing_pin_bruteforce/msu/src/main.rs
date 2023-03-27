@@ -1,4 +1,4 @@
-use std::{thread, time::Duration};
+use std::{thread, time::Duration, io::{Write, Read}};
 
 use clap::{arg, Parser};
 use serialport::SerialPort;
@@ -41,7 +41,7 @@ const DEFAULT_CURRENT_PIN_INTERVAL: u32 = 1; // In seconds.
 const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 25; // In milliseconds.
 const RESET_HOLD_TIME: u64 = 20; // In microseconds.
 
-fn pair(uart0: &mut Box<dyn SerialPort>, pin: u32) {
+fn pair(uart0: &mut dyn SerialPort, pin: u32) {
     let mut msg: [u8; 5] = [0x20, 0x00, 0x00, 0x00, 0x00];
     msg[1..].copy_from_slice(&pin.to_le_bytes());
     uart0.write_all(&msg).expect("Failed to write to UART0.");
@@ -100,21 +100,24 @@ fn main() {
     }
 
     let mut uart0 = serialport::new(args.uart0_serial_file_name, BAUD_RATE)
-        .open()
+        .open_native()
         .expect("Failed to open UART0 serial port.");
+    let _ = uart0.set_exclusive(false);
 
     let mut uart1 = serialport::new(args.uart1_serial_file_name, BAUD_RATE)
         .timeout(Duration::from_millis(pin_attempt_delay.into()))
-        .open()
+        .open_native()
         .expect("Failed to open UART1 serial port.");
+    let _ = uart1.set_exclusive(false);
 
     uart1
         .clear(serialport::ClearBuffer::All)
         .expect("Failed to clear UART1 serial port.");
 
     let mut esp32 = serialport::new(args.esp32_serial_file_name, BAUD_RATE)
-        .open()
+        .open_native()
         .expect("Failed to open ESP32 serial port.");
+    let _ = esp32.set_exclusive(false);
 
     esp32
         .write_all(format!("h{}1\n", args.board_number).as_bytes())
