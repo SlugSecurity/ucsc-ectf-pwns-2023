@@ -13,7 +13,7 @@ message_len = 16
 
 for i in range(ATTEMPT_COUNT):
     received_message = io.recv()
-    if received_message[1] == 0:
+    if i % 100 == 0:
         print(f"Tried {i + 1} times")
     payload = p8(UNLOCK_MAGIC) + p8(message_len) + random.randbytes(message_len)
     io.send(payload)
