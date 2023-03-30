@@ -7,10 +7,8 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument("uart0_serial_file_name")
-parser.add_argument("-s", "--start-pin", type=lambda x: int(x, 16), default=0)
-parser.add_argument(
-    "-e", "--stop-pin", type=lambda x: int(x, 16), default=(16**6 - 1)
-)
+parser.add_argument("-s", "--start-pin", type=lambda x: int(x, 16), default=0x000000)
+parser.add_argument("-e", "--stop-pin", type=lambda x: int(x, 16), default=0xFFFFFF)
 args = parser.parse_args()
 
 io = serialtube(args.uart0_serial_file_name, convert_newlines=False)
