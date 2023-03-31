@@ -2,5 +2,6 @@
 members = [
     "template",
     "msu",
+    "iitm",
 ]
 resolver = "2"
