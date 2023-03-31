@@ -17,7 +17,7 @@ struct Args {
     #[arg(short, long)]
     current_pin_interval: Option<u32>,
 
-    /// Delay between PIN attempts in milliseconds. Default = 50.
+    /// Delay between PIN attempts in milliseconds. Default = 1.
     #[arg(short, long)]
     pin_attempt_delay: Option<u32>,
 
@@ -43,12 +43,16 @@ const RESET_HOLD_TIME: u64 = 20; // In microseconds.
 
 fn pair(uart0: &mut Box<dyn SerialPort>, pin: u32) {
     let start_msg = [b'P'];
-    uart0.write_all(&start_msg).expect("Failed to write to UART0.");
+    uart0
+        .write_all(&start_msg)
+        .expect("Failed to write to UART0.");
 
     thread::sleep(Duration::from_micros(200));
 
     let pin_str = format!("{pin:06x}");
-    uart0.write_all(pin_str.as_bytes()).expect("Failed to write to UART0.");
+    uart0
+        .write_all(pin_str.as_bytes())
+        .expect("Failed to write to UART0.");
 }
 
 fn main() {
@@ -121,17 +125,17 @@ fn main() {
         .expect("Failed to open ESP32 serial port.");
 
     esp32
-        .write_all(format!("h{}1", args.board_number).as_bytes())
+        .write_all(format!("h{}1\n", args.board_number).as_bytes())
         .expect("Failed to write to ESP32."); // Make sure SW1 is not pressed.
 
     thread::sleep(Duration::from_millis(1));
 
     esp32
-        .write_all(format!("h{}2", args.board_number).as_bytes())
+        .write_all(format!("h{}2\n", args.board_number).as_bytes())
         .expect("Failed to write to ESP32."); // Make sure SW2 is not pressed.
 
-    let lower_reset_string = format!("l{}r", args.board_number);
-    let raise_reset_string = format!("h{}r", args.board_number);
+    let lower_reset_string = format!("l{}r\n", args.board_number);
+    let raise_reset_string = format!("h{}r\n", args.board_number);
     let lower_reset_bytes = lower_reset_string.as_bytes();
     let raise_reset_bytes = raise_reset_string.as_bytes();
 
@@ -152,9 +156,11 @@ fn main() {
             println!("Last PIN tried: {:06x}", pin);
         }
 
-        match uart1.read(&mut [0u8; 1]) {
+        let mut buf = [0u8; 1];
+        match uart1.read(&mut buf) {
             Ok(_) => {
                 println!("Found PIN: {:06x}", pin);
+                println!("Read byte: {:02x}", buf[0]);
                 return;
             }
             Err(e) => match e.kind() {
