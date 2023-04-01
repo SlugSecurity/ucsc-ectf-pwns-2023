@@ -1,10 +1,8 @@
 #![no_std]
 #![no_main]
 
-use embedded_hal::digital::v2::{OutputPin, InputPin};
-use fugit::RateExtU32;
+use embedded_hal::digital::v2::{InputPin, OutputPin};
 use hal::pac;
-use hal::uart::{DataBits, StopBits, UartConfig};
 use panic_halt as _;
 use rp2040_hal as hal;
 use rp2040_hal::clocks::Clock;
@@ -14,9 +12,6 @@ use rp2040_hal::clocks::Clock;
 pub static BOOT2: [u8; 256] = rp2040_boot2::BOOT_LOADER_GENERIC_03H;
 
 const XTAL_FREQ_HZ: u32 = 12_000_000u32;
-
-const UNLOCK_MESSAGE: [u8; 1] = [0x55];
-const UNLOCK_MESSAGE_PAD: [u8; 81] = [0x0; 81];
 
 #[rp2040_hal::entry]
 fn main() -> ! {
@@ -48,18 +43,8 @@ fn main() -> ! {
         &mut pac.RESETS,
     );
 
-    let uart_pins = (
-        pins.gpio4.into_mode::<hal::gpio::FunctionUart>(),
-        pins.gpio5.into_mode::<hal::gpio::FunctionUart>(),
-    );
-    let uart = hal::uart::UartPeripheral::new(pac.UART1, uart_pins, &mut pac.RESETS)
-        .enable(
-            UartConfig::new(115_200.Hz(), DataBits::Eight, None, StopBits::One),
-            clocks.peripheral_clock.freq(),
-        )
-        .unwrap();
-
     let mut reset_pin = pins.gpio6.into_push_pull_output();
+    let mut sw1 = pins.gpio7.into_push_pull_output();
     let board_tx = pins.gpio8.into_floating_input();
 
     // Reset the car
@@ -70,12 +55,11 @@ fn main() -> ! {
     while board_tx.is_low().unwrap() {}
 
     // Wait for the car to be ready
-    delay.delay_us(59985);
-    cortex_m::asm::delay(100);
-    // delay.delay_us(52986);
+    delay.delay_us(60020);
 
     // Send the unlock message
-    uart.write_full_blocking(&UNLOCK_MESSAGE);
-    uart.write_full_blocking(&UNLOCK_MESSAGE_PAD);
+    sw1.set_low().unwrap();
+    delay.delay_ms(1);
+    sw1.set_high().unwrap();
     loop {}
 }
