@@ -3,5 +3,6 @@ members = [
     "template",
     "msu",
     "iitm",
+    "smu",
 ]
 resolver = "2"

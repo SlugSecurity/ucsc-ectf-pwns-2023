@@ -239,6 +239,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "pairing_pin_bruteforce_smu"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "serialport",
+]
+
+[[package]]
 name = "pairing_pin_bruteforce_template"
 version = "0.1.0"
 dependencies = [
