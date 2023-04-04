@@ -5,7 +5,7 @@
 
 
 //change this to be the pin hash we get from ROP
-#define sha_256_pin "1e6c30ab91d1f1d61996ae17bc9af1ca8bcded8a0414de79258dc0c52d2215ee"
+#define sha_256_pin "dfda5e1f3b2b4cf0aef6bb5c825fc3d4a8aa1a5d2746fb607452523a98995ace"
 
 #define DIGEST_BYTES 32
 
