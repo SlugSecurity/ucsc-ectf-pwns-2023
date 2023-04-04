@@ -5,7 +5,7 @@
 
 
 //change this to be the pin hash we get from ROP
-#define sha_256_pin "f7298948225be27bf643ab6ac049c6bf953ab0d6a9513786a49692941142169b"
+#define sha_256_pin "00fbae7dc4e034f70acf4c3b3acde9ee5cb9f1ca2c6246d347b52a6af7551c4e"
 
 #define DIGEST_BYTES 32
 
@@ -37,7 +37,7 @@ int main(void){
         //if this doesnt work, replace with arr_pin
         sha256(message_hash, (uint8_t *)string_pin, len, cx);
         
-        if (0==(strncmp((char *)message_hash, (char *)received_hash, DIGEST_BYTES))){
+        if (0==(memcmp((char *)message_hash, (char *)received_hash, DIGEST_BYTES))){
             printf("Pin is %lx\n",pin);
             break;
         }
