@@ -5,7 +5,7 @@
 
 
 //change this to be the pin hash we get from ROP
-#define sha_256_pin "00fbae7dc4e034f70acf4c3b3acde9ee5cb9f1ca2c6246d347b52a6af7551c4e"
+#define sha_256_pin "1e6c30ab91d1f1d61996ae17bc9af1ca8bcded8a0414de79258dc0c52d2215ee"
 
 #define DIGEST_BYTES 32
 
@@ -26,7 +26,7 @@ int main(void){
 
         //I hate all of this
         char string_pin[8];
-        sprintf(string_pin,"%lx",pin);
+        sprintf(string_pin,"%06lx",pin);
 
         sha256_ctx cx[1];
         uint8_t message_hash[DIGEST_BYTES];
