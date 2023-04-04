@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+
+//change this to be the pin hash we get from ROP
 #define sha_256_pin "B78C53B964AB04FEFE19BEE2600B38E84A2C4BA735D23BE7600965221E0979B7"
 
 #define DIGEST_BYTES 32
@@ -18,7 +20,7 @@ int main(void){
       strncpy(hex, &sha_256_pin[i], 2);
       received_hash[i/2] = (uint8_t)strtol(hex, 0, 16);
     }
-
+    //this should be 16^6+1
     for(;pin < 16777217;pin++){
         memcpy(arr_pin,&pin,sizeof(pin));
         sha256_ctx cx[1];
