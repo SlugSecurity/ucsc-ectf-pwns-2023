@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+xxd -p -r <(echo 5610DC953A0BF5FFC53CC5305B02166CD6EA) > $1
+sleep 0.01
+xxd -p -r <(echo 561054CEE2BBC49B6990B2A9D19EBB0D7A88) > $1
+sleep 0.01
+xxd -p -r <(echo 571025A62CB655BD89D351761FB9BBB3A983) > $1
