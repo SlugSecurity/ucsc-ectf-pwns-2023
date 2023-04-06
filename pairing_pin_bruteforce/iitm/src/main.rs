@@ -108,6 +108,7 @@ fn main() {
     }
 
     let mut uart0 = serialport::new(args.uart0_serial_file_name, BAUD_RATE)
+        .timeout(Duration::from_millis(20))
         .open()
         .expect("Failed to open UART0 serial port.");
 
