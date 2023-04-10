@@ -19,16 +19,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-
-#include "driverlib/eeprom.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/timer.h"
-
 #include "sha256.h"
 
 // Declare password
