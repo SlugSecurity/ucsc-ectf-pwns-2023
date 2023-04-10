@@ -255,6 +255,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "pairing_pin_bruteforce_ub"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "serialport",
+]
+
+[[package]]
 name = "pkg-config"
 version = "0.3.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"

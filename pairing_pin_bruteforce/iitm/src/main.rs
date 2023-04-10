@@ -38,7 +38,7 @@ const BAUD_RATE: u32 = 115200;
 const DEFAULT_START_PIN: u32 = 0;
 const DEFAULT_STOP_PIN: u32 = 0xffffff;
 const DEFAULT_CURRENT_PIN_INTERVAL: u32 = 1; // In seconds.
-const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 1; // In milliseconds.
+const DEFAULT_PIN_ATTEMPT_DELAY: u32 = 10; // In milliseconds.
 const RESET_HOLD_TIME: u64 = 20; // In microseconds.
 
 fn pair(uart0: &mut Box<dyn SerialPort>, pin: u32) {
@@ -108,11 +108,13 @@ fn main() {
     }
 
     let mut uart0 = serialport::new(args.uart0_serial_file_name, BAUD_RATE)
+        .stop_bits(serialport::StopBits::Two)
         .timeout(Duration::from_millis(20))
         .open()
         .expect("Failed to open UART0 serial port.");
 
     let mut uart1 = serialport::new(args.uart1_serial_file_name, BAUD_RATE)
+        .stop_bits(serialport::StopBits::Two)
         .timeout(Duration::from_millis(pin_attempt_delay.into()))
         .open()
         .expect("Failed to open UART1 serial port.");
@@ -150,6 +152,8 @@ fn main() {
         esp32
             .write_all(raise_reset_bytes)
             .expect("Failed to write to ESP32.");
+
+        thread::sleep(Duration::from_millis(70));
 
         pair(&mut uart0, pin);
 
